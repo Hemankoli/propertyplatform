@@ -1,9 +1,11 @@
 import { Link } from "react-router-dom";
 import { IoClose } from "react-icons/io5";
+import NavButton from "./helpers/NavButton";
 
-export default function Hambuerger({ setModal, user, handleLogout }) {
+export default function Hamburger({ setModal, user, handleLogout }) {
     function closeMenu() {
         setModal(null);
+        window.scrollTo({top:0, behavior:"smooth"})
     }
     return (
         <div className="fixed inset-0 bg-black/40 z-40 flex justify-end">
@@ -15,7 +17,7 @@ export default function Hambuerger({ setModal, user, handleLogout }) {
                     <IoClose size={24} />
                 </button>
 
-                <div className="md:hidden flex flex-col items-start space-y-4 pt-10">
+                <div className="md:hidden flex flex-col items-start space-y-6 pt-20">
                     {user && user?.user?.role === "Admin" &&
                         <Link to={"/dashboard/admin"} onClick={closeMenu} className="text-orange-600 font-semibold hover:text-orange-500">
                             Admin Dashboard
@@ -25,18 +27,20 @@ export default function Hambuerger({ setModal, user, handleLogout }) {
                             <Link to={"/dashboard/account"} onClick={closeMenu}  className="text-orange-600 font-semibold hover:text-orange-500">
                                 Account
                             </Link>
-                            <button onClick={() => { handleLogout(); closeMenu(); }} className="font-semibold hover:text-gray-800">
-                                Log Out
-                            </button>
+                            <NavButton
+                                method={handleLogout}
+                                label="Log Out"
+                            />
                         </>
                     ) : (
                         <>
                             <button onClick={() => setModal('login-modal')} className="text-orange-600 font-semibold hover:text-orange-500">
                                 Log In
                             </button>
-                            <button onClick={() => setModal('signup-modal')} className="font-semibold">
-                                Sign Up
-                            </button>
+                            <NavButton
+                                method={() => setModal("signup-modal")}
+                                label="Sign Up"
+                            />
                         </>
                     )}
                 </div>

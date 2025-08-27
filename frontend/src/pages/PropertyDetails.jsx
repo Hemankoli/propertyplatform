@@ -2,53 +2,57 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMainContext } from "../context";
 import { formatPrice } from "../utils/formatPrice";
-import Button from "../components/helpers/Button";
 import { bookingProperty, verifyPayment } from "../services/apis";
 import InputField from "../components/helpers/InputField";
-import { toast } from "react-hot-toast";
+import { BookingDatesRequiredNotification, PaymentFailedNotification, PaymentSuccessfulNotification } from "../components/notifications/notification";
 
 export default function PropertyDetails() {
     const { propertyId } = useParams();
-    const { properties } = useMainContext();
+    const { user, properties } = useMainContext();
     const [property, setProperty] = useState(null);
-
-    // Booking dates
+    const [selectedImg, setSelectedImg] = useState("");
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
 
     useEffect(() => {
         const foundProperty = properties?.find((prop) => prop?._id === propertyId);
         setProperty(foundProperty);
+        if (foundProperty?.images?.length) {
+            setSelectedImg(foundProperty.images[0]);
+        }
     }, [propertyId, properties]);
 
     const handleBookNow = async () => {
         if (!startDate || !endDate) {
-            toast.error("Please select start and end dates for booking.");
+            BookingDatesRequiredNotification();
             return;
         }
-
         try {
             const { data } = await bookingProperty({
                 amount: Number(property?.price)
             });
-
             const options = {
                 key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-                amount: data.amount,
-                currency: data.currency,
+                amount: data?.amount,
+                currency: data?.currency,
                 name: "Property Booking",
                 description: `Booking for ${property?.title}`,
                 image: property?.images?.[0],
-                order_id: data._id,
+                order_id: data?.id,
                 handler: async function (response) {
-                    await verifyPayment(response);
-                    console.log(response);
-                    alert("🎉 Payment Successful & Booking Confirmed!");
+                    await verifyPayment({
+                        userId: user?.id || user?.user?.id, 
+                        propertyId: property?._id,
+                        startDate, 
+                        endDate,
+                        totalAmount: data?.amount,
+                        ...response
+                    });
+                    PaymentSuccessfulNotification();
                 },
                 prefill: {
-                    name: "John Doe",
-                    email: "john@example.com",
-                    contact: "9876543210",
+                    name: user?.name || user?.user?.name || "John Doe",
+                    email: user?.email || "john@example.com",
                 },
                 theme: { color: "#F97316" },
             };
@@ -57,7 +61,7 @@ export default function PropertyDetails() {
             rzp.open();
         } catch (err) {
             console.error(err);
-            toast.error("Payment Failed!");
+            PaymentFailedNotification();
         }
     };
 
@@ -68,7 +72,7 @@ export default function PropertyDetails() {
             <div className="bg-white rounded shadow overflow-hidden">
                 <div className="relative w-full h-96 md:h-[40rem]">
                     <img
-                        src={property?.images?.[0]}
+                        src={selectedImg}
                         alt={property?.title}
                         className="w-full h-full object-cover"
                     />
@@ -103,20 +107,26 @@ export default function PropertyDetails() {
                                 method={(e) => setEndDate(e.target.value)}
                             />
                         </div>
-
-                        <Button onClick={handleBookNow} className="w-[120px]">
+                        <button
+                            type='button'
+                            onClick={handleBookNow}
+                            className="w-[120px] bg-orange-500 hover:bg-orange-600 text-white font-semibold py-[5px] px-[10px] rounded shadow transition duration-200 ease-in-out"
+                        >
                             Book Now
-                        </Button>
+                        </button>
                     </div>
 
                     {property?.images?.length > 1 && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
-                            {property?.images?.slice(1)?.map((img, index) => (
+                            {property?.images?.map((img, index) => (
                                 <img
                                     key={index}
                                     src={img}
+                                    onClick={() => {setSelectedImg(img); window.scrollTo({ top: 0, behavior: 'smooth' });}}
                                     alt={`Property ${index}`}
-                                    className="w-full h-60 object-cover rounded-sm shadow hover:scale-105 transition"
+                                    className={`w-full h-52 md:h-60 object-cover rounded-sm shadow cursor-pointer transition ${
+                                        selectedImg === img ? "ring-4 ring-orange-500" : "hover:scale-105"
+                                    }`}
                                 />
                             ))}
                         </div>
@@ -138,9 +148,6 @@ export default function PropertyDetails() {
                             <p className="text-gray-700">📞 +91 9876543210</p>
                             <p className="text-gray-700">✉️ seller@propertymail.com</p>
                         </div>
-                        <button className="mt-4 md:mt-0 px-6 py-2 bg-green-500 text-white rounded-lg shadow hover:bg-green-600 transition">
-                            Contact Now
-                        </button>
                     </div>
                 </div>
             </div>

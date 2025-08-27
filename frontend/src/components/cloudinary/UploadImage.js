@@ -1,5 +1,5 @@
 
-const url = `https://api.cloudinary.com/v1_1/dsj8izwdl/image/upload`;
+const url = process.env.REACT_APP_CLOUDINARY_URL;
 
 export default async function UploadImage(image) {
   const formData = new FormData();

@@ -1,6 +1,6 @@
 import React from 'react';
 
-export const TabSwitcher = ({ tabs, active, onTabChange }) => {
+export default function TabSwitcher({ tabs, active, onTabChange }) {
     return (
         <div className="flex space-x-4 border-b overflow-x-auto scrollbar">
             {tabs.map(tab => (

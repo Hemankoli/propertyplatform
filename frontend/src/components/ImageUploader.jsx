@@ -1,7 +1,7 @@
 import { HiOutlineTrash } from 'react-icons/hi';
 import { FiUpload } from 'react-icons/fi';
 
-export const ImageUploader = ({ imagePreview, onImageChange, onRemoveImage }) => {
+export default function ImageUploader({ imagePreview, onImageChange, onRemoveImage }) {
 
     return (
         <div className='space-y-2'>

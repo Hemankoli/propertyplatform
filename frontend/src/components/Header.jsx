@@ -1,64 +1,116 @@
 import { useMainContext } from "../context";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { TfiMenu } from "react-icons/tfi";
-import Hambuerger from "./Hambuerger";
+import { AnimatePresence, motion } from "framer-motion";
+import { Hamburger, NavButton } from "../components";
 
 export default function Header() {
-    const { user, modal, setModal, setUser } = useMainContext();
+  const { user, modal, setModal, setUser } = useMainContext();
+  const navigate = useNavigate();
 
-    async function handleLogout() {
-        try {
-            await axios.post(`${process.env.REACT_APP_BACKEND_URL}/logout`);
-            localStorage.removeItem("token");
-            localStorage.removeItem("user");
-            setUser(null);
-        } catch (error) {
-            console.error("Error logging out:", error);
-        }
+  async function handleLogout() {
+    try {
+      await axios.post(`${process.env.REACT_APP_BACKEND_URL}/logout`);
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setUser(null);
+      navigate("/");
+    } catch (error) {
+      console.error("Error logging out:", error);
     }
-    return (
-        <header className="bg-white shadow-md sticky top-0 z-30">
-            <div className="container mx-auto flex items-center justify-between py-2 px-4 md:px-10">
-                <Link to={"/"} className="flex items-center text-2xl md:text-3xl font-bold text-white cursor-pointer">
-                    <p className="text-orange-600">Property</p><span className="text-gray-900 italic">Seller</span>
-                </Link>
-                {/* Destok Menu */}
-                <div className="hidden md:flex space-x-4">
-                    {user && user?.user?.role === "Admin" && 
-                    <Link to={"/dashboard/admin"} className="text-orange-600 font-semibold hover:text-orange-500">
-                        Admin Dashboard
-                    </Link>}
-                    {user ? (
-                        <>
-                            <Link to={"/dashboard/account"} className="text-orange-600 font-semibold hover:text-orange-500">
-                                Account
-                            </Link>
-                            <button onClick={handleLogout} className="font-semibold hover:text-gray-800">
-                                Log Out
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button onClick={() => setModal('login-modal')} className="text-orange-600 font-semibold hover:text-orange-500">
-                                Log In
-                            </button>
-                            <button onClick={() => setModal('signup-modal')} className="font-semibold">
-                                Sign Up
-                            </button>
-                        </>
-                    )}
-                </div>
-                {/* Mobile Menu */}
-                <div className="md:hidden">
-                    <button onClick={() => setModal("toggle-menu")}>
-                        <TfiMenu size={20}/>
-                    </button>
-                </div>
-                {modal === "toggle-menu" && 
-                    <Hambuerger modal={modal} setModal={setModal} user={user} handleLogout={handleLogout} />
+  }
+
+  return (
+    <header className="bg-white shadow sticky top-0 z-30">
+      <div className="container mx-auto flex items-center justify-between py-3 px-4 md:px-10">
+       <Link to="/"
+          className="flex items-center text-2xl md:text-3xl font-extrabold cursor-pointer group relative"
+        >
+          <p className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm transition-transform duration-300">
+            Property
+          </p>
+          <span className="ml-1 italic text-gray-900 group-hover:text-gray-700 transition-colors duration-300">
+            Seller
+          </span>
+          <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-gradient-to-r from-orange-500 to-pink-500 rounded-full group-hover:w-full transition-all duration-500"></span>
+        </Link>
+        {/* Desktop Nav */}
+        <nav className="hidden md:flex items-center space-x-8 font-medium">
+          {user ? (
+            <>
+              <Link
+                to="/dashboard/account"
+                onClick={() =>
+                  window.scrollTo({ top: 0, behavior: "smooth" })
                 }
-            </div>
-        </header>
+                className="text-gray-700 hover:text-orange-600 transition"
+              >
+                Account
+              </Link>
+              {user?.user?.role === "Admin" && (
+                <Link
+                  to="/dashboard/admin"
+                  onClick={() =>
+                    window.scrollTo({ top: 0, behavior: "smooth" })
+                  }
+                  className="px-3 py-1 bg-orange-600 text-white rounded-sm shadow hover:bg-orange-700 transition"
+                >
+                  Admin Dashboard
+                </Link>
+              )}
+              <NavButton
+                method={() => {
+                  handleLogout();
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }}
+                label="Log Out"
+              />
+            </>
+          ) : (
+            <>
+              <button
+                onClick={() => setModal("login-modal")}
+                className="text-gray-700 hover:text-orange-600 transition"
+              >
+                Log In
+              </button>
+              <NavButton
+                method={() => setModal("signup-modal")}
+                label="Sign Up"
+              />
+            </>
+          )}
+        </nav>
+
+        <div className="md:hidden">
+          <button
+            onClick={() => setModal("toggle-menu")}
+            className="p-2 rounded-lg hover:bg-orange-50 transition"
+          >
+            <TfiMenu size={22} className="text-gray-700" />
+          </button>
+        </div>
+      </div>
+
+      <AnimatePresence>
+        {modal === "toggle-menu" && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "tween", duration: 0.3 }}
+            className="fixed top-0 right-0 w-3/4 max-w-sm h-full z-40"
+          >
+            <Hamburger
+              modal={modal}
+              setModal={setModal}
+              user={user}
+              handleLogout={handleLogout}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </header>
   );
 }

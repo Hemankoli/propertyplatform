@@ -1,6 +1,6 @@
-import Razorpay from "razorpay";
-import crypto from "crypto";
-import BookingSchema from "../models//BookingModal.js";
+const Razorpay = require("razorpay");
+const crypto = require("crypto");
+const BookingSchema = require("../models/BookingModal");
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
@@ -8,7 +8,7 @@ const razorpay = new Razorpay({
 });
 
 // Create Razorpay Order
-export const makePayment = async (req, res) => {
+exports.makePayment = async (req, res) => {
   try {
     const { amount } = req.body;
     const options = {
@@ -25,9 +25,9 @@ export const makePayment = async (req, res) => {
 };
 
 // Verify Payment & Store Booking
-export const verifyPayment = async (req, res) => {
+exports.verifyPayment = async (req, res) => {
   try {
-    const { userId, propertyId, startDate, endDate, amount, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+    const { userId, propertyId, startDate, endDate, totalAmount, razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
 
     // Verify signature
     const sign = razorpay_order_id + "|" + razorpay_payment_id;
@@ -44,7 +44,7 @@ export const verifyPayment = async (req, res) => {
       property: propertyId,
       startDate,
       endDate,
-      totalAmount: amount,
+      totalAmount,
       razorpay_order_id,
       razorpay_payment_id
     });
@@ -57,3 +57,22 @@ export const verifyPayment = async (req, res) => {
     res.status(500).send("Payment verification failed");
   }
 };
+
+exports.getBookings = async (req, res) => {
+  try {
+    const bookings = await BookingSchema.find();
+    return res.status(200).json(bookings);
+  } catch (error) {
+    return res.status(400).json({message: "Failed To Get Bookings!"})
+  }
+}
+
+exports.getBookingById = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const bookings = await BookingSchema.find({ user: userId });
+    return res.status(200).json(bookings) 
+  } catch (error) {
+    return res.status(400).json({message: "Failed To Get Bookings!"})
+  }
+}

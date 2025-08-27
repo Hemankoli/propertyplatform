@@ -1,19 +1,18 @@
 import React, {useEffect, useState} from 'react'
 import { Outlet } from 'react-router-dom';
 import Spinner from '../../components/Spinner';
-import { useMainContext } from '../../context';
 import axios from 'axios';
 
 const UserRoute = () => {
-    const { user } = useMainContext();
-    const [ok, setOk] = useState(false)
+    const [ok, setOk] = useState(false);
+    const token = localStorage.getItem("token");
     
     useEffect(() => {
         const authCheck = async () => {
             try {
                 const response = await axios.get(`${process.env.REACT_APP_BACKEND_URL}/user-auth`, {
                     headers: {
-                        Authorization: `Bearer ${user?.token}`
+                        Authorization: `Bearer ${token}`
                     },
                 });
                 if (response.data.ok) {
@@ -27,8 +26,8 @@ const UserRoute = () => {
             }
         };
     
-        if (user?.token) authCheck();
-    }, [user?.token]);
+        if (token) authCheck();
+    }, [token]);
     
 
   return (

@@ -1,12 +1,11 @@
 import React, { useMemo, useState } from "react";
-import DataTable from "../components/DataTable";
-import { TabSwitcher } from "../components/TabSwitcher";
+import { DataTable, TabSwitcher } from "../components";
 import { useMainContext } from "../context";
 import { formatPrice } from "../utils/formatPrice";
 
 export default function Admin() {
-    const [activeTab, setActiveTab] = useState(localStorage.getItem('tabs') || 'users');
-    const { allUsers, properties, bookings, setModal, setSelectedIds } = useMainContext();
+    const [activeTab, setActiveTab] = useState( "Users" || localStorage.getItem('tabs'));
+    const { allUsers, properties, allBookings, setModal, setSelectedIds } = useMainContext();
 
     const handleChangeTab = (tab) => {
         setActiveTab(tab)
@@ -49,14 +48,15 @@ export default function Admin() {
         },
         Bookings: {
             label: "Bookings",
-            columns: ["Property", 'User', 'Date'],
-            rows: bookings?.map(booking => ({
-                property: booking?.property,
-                user: booking?.user,
-                date: new Date(booking?.date).toLocaleDateString(),
+            columns: ["Property", 'User', 'Starting Date', 'Ending Date'],
+            rows: allBookings?.map(booking => ({
+                Property: booking?.property,
+                User: booking?.user,
+                'Starting Date': new Date(booking?.startDate).toLocaleDateString(),
+                'Ending Date': new Date(booking?.endDate).toLocaleDateString(),
             })) || [],
         },
-    }), [allUsers, bookings, properties, setModal, setSelectedIds]);
+    }), [allUsers, allBookings, properties, setModal, setSelectedIds]);
 
     const tabList = Object.keys(dataMap).map(key => ({key, label: dataMap[key].label}));
 
@@ -70,7 +70,7 @@ export default function Admin() {
                 </div>
                 <div className="bg-white shadow-md rounded p-6">
                 <h2 className="text-xl font-semibold text-gray-700">Total Bookings</h2>
-                <p className="mt-2 text-3xl font-bold text-green-600">{bookings?.length}</p>
+                <p className="mt-2 text-3xl font-bold text-green-600">{allBookings?.length}</p>
                 </div>
                 <div className="bg-white shadow-md rounded p-6">
                 <h2 className="text-xl font-semibold text-gray-700">Total Properties</h2>

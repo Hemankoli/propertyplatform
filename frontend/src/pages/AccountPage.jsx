@@ -1,9 +1,8 @@
+import BookingCard from "../components/cards/BookingCard";
 import { useMainContext } from "../context";
 
-export const AccountPage = () => {
-  const { user, bookings } = useMainContext();
-
-  console.log(user)
+export default function AccountPage() {
+  const { user, bookings, properties } = useMainContext();
 
   return (
     <div className="min-h-screen md:px-10 px-4 py-10">
@@ -18,8 +17,8 @@ export const AccountPage = () => {
                 />
               </div>
               <div className="space-y-2 text-gray-700">
-                <p><span className="font-semibold">Name:</span> {user?.user?.name}</p>
-                <p><span className="font-semibold">Email:</span> {user?.user?.email}</p>
+                <p><span className="font-semibold">Name:</span> {user?.user?.name || user?.name}</p>
+                <p><span className="font-semibold">Email:</span> {user?.user?.email || user?.email}</p>
               </div>
             </div> 
           ) : (
@@ -30,27 +29,10 @@ export const AccountPage = () => {
           <h2 className="text-2xl font-bold mb-4">My Bookings</h2>
           {bookings?.length > 0 ? (
             <div className="grid md:grid-cols-2 gap-6">
-              {bookings.map((property) => (
-                <div
-                  key={property._id}
-                  className="border rounded-xl p-4 shadow-sm hover:shadow-lg transition bg-gray-50"
-                >
-                  <img
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-40 object-cover rounded-lg mb-3"
-                  />
-                  <h3 className="text-lg font-semibold">{property.title}</h3>
-                  <p className="text-gray-600">{property.location}</p>
-                  <p className="text-gray-800 font-bold mt-2">
-                    ₹ {property.price >= 10000000
-                      ? `${(property.price / 10000000).toFixed(1)} Cr`
-                      : property.price >= 100000
-                      ? `${(property.price / 100000).toFixed(1)} Lakh`
-                      : property.price}
-                  </p>
-                </div>
-              ))}
+              {bookings.map((booking) => {
+                const propData = properties.find((prop) => prop._id === booking.property);
+                return <BookingCard key={booking._id} data={{ ...booking, property: propData }} />;
+              })}
             </div>
           ) : (
             <p className="text-gray-500">No bookings found.</p>

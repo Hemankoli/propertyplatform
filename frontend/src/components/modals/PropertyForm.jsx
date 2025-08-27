@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { ModalLayout } from "../layouts/ModalLayout";
-import Button from "../helpers/Button";
-import InputField from "../helpers/InputField";
+import { ModalLayout, InputField, Button, ImageUploader, UploadImage } from "../../components";
 import { useMainContext } from "../../context";
-import toast from "react-hot-toast";
 import { createProperty, editProperty } from "../../services/apis";
-import { ImageUploader } from "../ImageUploader";
-import UploadImage from "../cloudinary/UploadImage";
+import { AllFieldsRequiredNotification, PropertyCreatedSuccessfullyNotification, PropertyUpdatedSuccessfullyNotification, SomethingWentWrongNotification } from "../notifications/notification";
 
 export default function PropertyForm() {
     const [data, setData] = useState({
@@ -35,19 +31,15 @@ export default function PropertyForm() {
         }
     }, [properties, selectedIds]);
 
-    // Update address & fetch coordinates automatically
     const handleChange = async (e) => {
         const { name, value } = e.target;
 
         if (name === "location") {
             setData((prev) => ({ ...prev, location: { ...prev.location, address: value } }));
-
-            // Fetch coordinates using OpenStreetMap Nominatim
-            if (value.length > 5) { // Only search if address is >5 chars
+            if (value.length > 5) { 
                 try {
-                    const res = await fetch(
-                        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
-                            value
+                    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+                        value
                         )}`
                     );
                     const json = await res.json();
@@ -84,7 +76,7 @@ export default function PropertyForm() {
         setLoader(true);
 
         if (!data.title || !data.description || !data.price || !data.location.address) {
-            toast.error("All Fields are Required");
+            AllFieldsRequiredNotification();
             setLoader(false);
             return;
         }
@@ -107,16 +99,16 @@ export default function PropertyForm() {
 
             if (selectedIds) {
                 const resp = await editProperty(selectedIds, payload);
-                if (resp?.status === 200) toast.success("Property Updated Successfully!");
+                if (resp?.status === 200) return PropertyUpdatedSuccessfullyNotification();
             } else {
                 const resp = await createProperty(payload);
-                if (resp?.status === 200) toast.success("Property Created Successfully!");
+                if (resp?.status === 200) return PropertyCreatedSuccessfullyNotification();
             }
 
             setModal(false);
         } catch (error) {
             console.error(error);
-            toast.error("Something went wrong!");
+            SomethingWentWrongNotification();
         } finally {
             setLoader(false);
         }

@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { ModalLayout } from "../layouts/ModalLayout";
-import InputField from "../helpers/InputField";
-import Button from "../helpers/Button";
+import { ModalLayout, InputField, Button } from "../../components";
 import { useMainContext } from "../../context";
-import toast from "react-hot-toast";
+import { AllFieldsRequiredNotification, PasswordsDoNotMatchNotification, PasswordTooShortNotification, RegistrationSuccessfulNotification, ServerErrorNotification, UserAlreadyRegisteredNotification } from "../notifications/notification";
 import axios from "axios";
 
 export default function Signup() {
@@ -18,39 +16,39 @@ export default function Signup() {
         e.preventDefault();
         setLoader(true);
         if (!form.name || !form.email || !form.password || !form.confirmPassword) {
-            toast.error("Please enter all required fields");
+            AllFieldsRequiredNotification();
             setLoader(false);
             return;
         }
         if (form.password !== form.confirmPassword) {
-            toast.error("Password and Confirm Password do not match");
+            PasswordsDoNotMatchNotification();
             setLoader(false);
             return;
         }
         if (form.password.length < 6) {
-            toast.error("Password must be at least 6 characters");
+            PasswordTooShortNotification();
             setLoader(false);
             return;
         }
         try {
-            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/register`, {
+            const response = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/register`, ({
                 name: form.name,
                 email: form.email,
                 password: form.password,
                 confirmPassword: form.confirmPassword
-            });
+            }));
             if (response.status === 201) {
-                toast.success("Register Successfully")
+                RegistrationSuccessfulNotification();
                 localStorage.setItem("token", response.data.token);
                 localStorage.setItem("user", JSON.stringify(response.data.user));
                 setUser(response.data.user);
                 await onClose();
             } else {
-                toast.error("User Already Register");
+                UserAlreadyRegisteredNotification();
                 setModal("login-modal");
             }
         } catch (error) {
-            toast.error("Server Error. Please try again later.");
+            ServerErrorNotification();
             console.log(error);
         } finally{
             setLoader(false);
@@ -104,7 +102,7 @@ export default function Signup() {
                         type="submit"
                         className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 rounded-lg transition"
                     >
-                        Login
+                        Sign Up
                     </Button>
                 </form>
 

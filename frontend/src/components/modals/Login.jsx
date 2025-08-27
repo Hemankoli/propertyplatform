@@ -1,10 +1,8 @@
 import React, { useState } from "react";
-import { ModalLayout } from "../layouts/ModalLayout";
-import InputField from "../helpers/InputField";
-import Button from "../helpers/Button";
+import { ModalLayout, InputField, Button } from "../../components";
 import { useMainContext } from "../../context";
+import { IncorrectPasswordNotification, LoginSuccessfulNotification, ServerErrorNotification, UserNotFoundNotification } from "../notifications/notification";
 import axios from "axios";
-import toast from "react-hot-toast";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -18,12 +16,12 @@ export default function Login() {
     e.preventDefault();
     setLoader(true);
     try {
-      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/login`, {
+      const res = await axios.post(`${process.env.REACT_APP_BACKEND_URL}/login`,({
         email: form.email,
         password: form.password,
-      });
+      }));
       if(res.status === 200) {
-        toast.success("Login Successful");
+        LoginSuccessfulNotification();
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("user", JSON.stringify(res.data));
         setUser(res.data.user);
@@ -31,11 +29,11 @@ export default function Login() {
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {
-        toast.error('Incorrect Password');
+        IncorrectPasswordNotification();
       } else if (error.response && error.response.status === 404) {
-        toast.error('User Not Found');
+        UserNotFoundNotification();
       } else {
-        toast.error('An error occurred. Please try again later.');
+        ServerErrorNotification();
       }
       console.error("Error logging in:", error);
     }finally{

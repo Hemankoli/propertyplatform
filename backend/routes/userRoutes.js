@@ -9,11 +9,11 @@ router.post('/logout', userController.logout);
 router.get('/all-users', userController.getAllUsers);
 
 router.get("/user-auth",  checkAuthenticated, (req, res) => {
-    res.status(200).send({ ok: true });
+    res.status(200).send({ ok: true, user: req.user });
 });
 
-router.get("/admin-auth",  isAdmin, (req, res) => {
-    res.status(200).send({ ok: true });
+router.get("/admin-auth", checkAuthenticated, isAdmin, (req, res) => {
+    res.status(200).send({ ok: true, user: req.user });
 });
 
 module.exports = router;                                                                                                                                        

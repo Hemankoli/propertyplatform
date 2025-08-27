@@ -77,10 +77,10 @@ export default function PropertyMap({ properties }) {
     });
 
     setMapInstance(map);
-  }, [properties, mapInstance]);
+  }, []);
 
   return (
-    <div className="relative w-[600px] h-[500px]">
+    <div className="relative h-[500px]">
       <div ref={mapRef} className="w-full h-full rounded-lg shadow-lg"></div>
 
       <div

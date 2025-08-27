@@ -1,7 +1,8 @@
 import { useMainContext } from '../../context';
 import { deleteProperty } from '../../services/apis';
+import { PropertyDeletedSuccessfullyNotification } from '../notifications/notification';
 
-export const ConfirmationModal = () => {
+export default function ConfirmationModal() {
     const {loader, setLoader, selectedIds, onClose} = useMainContext();
 
     const handleDelete = async () => {
@@ -9,6 +10,7 @@ export const ConfirmationModal = () => {
         try {
             await deleteProperty(selectedIds);
             await onClose();
+            PropertyDeletedSuccessfullyNotification();
         } catch (error) {
             console.error(error);
         } finally {
