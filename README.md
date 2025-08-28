@@ -1,6 +1,6 @@
 Property Listing & Booking Platform
 
-A full-stack property marketplace built with Next.js, MongoDB/Mongoose, NextAuth, Razorpay, OpenLayers, and RBAC.
+A full-stack property marketplace built with React.js, Node.js, MongoDB/Mongoose, RestAPIs, Razorpay, OpenLayers, and RBAC.
 Users can browse, map, and book properties; Admins can manage users, properties, and bookings.
 
 ✨ Features
