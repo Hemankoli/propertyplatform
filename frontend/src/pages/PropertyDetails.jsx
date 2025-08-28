@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useMainContext } from "../context";
 import { formatPrice } from "../utils/formatPrice";
-import { bookingProperty, verifyPayment } from "../services/apis";
 import InputField from "../components/helpers/InputField";
-import { BookingDatesRequiredNotification, PaymentFailedNotification, PaymentSuccessfulNotification } from "../components/notifications/notification";
+import { Payment } from "../components";
+import { BookingDatesInvalidNotification, BookingDatesRequiredNotification } from "../components/notifications/notification";
 
 export default function PropertyDetails() {
     const { propertyId } = useParams();
-    const { user, properties } = useMainContext();
+    const { modal, setModal, properties, isPropertyBooked } = useMainContext();
     const [property, setProperty] = useState(null);
     const [selectedImg, setSelectedImg] = useState("");
     const [startDate, setStartDate] = useState("");
@@ -22,53 +22,16 @@ export default function PropertyDetails() {
         }
     }, [propertyId, properties]);
 
-    const handleBookNow = async () => {
-        if (!startDate || !endDate) {
-            BookingDatesRequiredNotification();
-            return;
-        }
-        try {
-            const { data } = await bookingProperty({
-                amount: Number(property?.price)
-            });
-            const options = {
-                key: process.env.REACT_APP_RAZORPAY_KEY_ID,
-                amount: data?.amount,
-                currency: data?.currency,
-                name: "Property Booking",
-                description: `Booking for ${property?.title}`,
-                image: property?.images?.[0],
-                order_id: data?.id,
-                handler: async function (response) {
-                    await verifyPayment({
-                        userId: user?.id || user?.user?.id, 
-                        propertyId: property?._id,
-                        startDate, 
-                        endDate,
-                        totalAmount: data?.amount,
-                        ...response
-                    });
-                    PaymentSuccessfulNotification();
-                },
-                prefill: {
-                    name: user?.name || user?.user?.name || "John Doe",
-                    email: user?.email || "john@example.com",
-                },
-                theme: { color: "#F97316" },
-            };
-
-            const rzp = new window.Razorpay(options);
-            rzp.open();
-        } catch (err) {
-            console.error(err);
-            PaymentFailedNotification();
-        }
-    };
-
     if (!property) return null;
 
+    function proceedPayment(){
+        if (!startDate || !endDate) return BookingDatesRequiredNotification();
+        if (new Date(startDate) >= new Date(endDate)) return BookingDatesInvalidNotification();
+        setModal("payment-modal");
+    }
+
     return (
-        <div className="min-h-screen px-4 md:px-10 py-10 bg-gradient-to-b from-gray-50 to-white">
+        <div className="max-w-[1400px] mx-auto min-h-screen px-4 md:px-10 py-10 bg-gradient-to-b from-gray-50 to-white">
             <div className="bg-white rounded shadow overflow-hidden">
                 <div className="relative w-full h-96 md:h-[40rem]">
                     <img
@@ -81,6 +44,11 @@ export default function PropertyDetails() {
                             {property?.title}
                         </h1>
                     </div>
+                    {isPropertyBooked(property?._id) && (
+                        <div className="absolute top-2 left-2 text:md md:text-xl bg-red-500 text-white md:px-5 px-3 py-1 md:py-3 rounded-sm font-semibold shadow-md">
+                            Already Booked
+                        </div>
+                    )}
                 </div>
 
                 <div className="p-6 md:p-10">
@@ -92,25 +60,36 @@ export default function PropertyDetails() {
 
                         {/* Date selection */}
                         <div className="flex gap-2 items-center">
-                            <InputField 
+                            <InputField
                                 labelName="From"
                                 type="date"
                                 value={startDate}
                                 name={"startDate"}
-                                method={(e) => setStartDate(e.target.value)}
+                                method={(e) => {
+                                    const newStart = e.target.value;
+                                    setStartDate(newStart);
+                                    if (!endDate || new Date(endDate) <= new Date(newStart)) {
+                                    const nextDay = new Date(new Date(newStart).getTime() + 24 * 60 * 60 * 1000);
+                                    setEndDate(nextDay.toISOString().split("T")[0]);
+                                    }
+                                }}
+                                min={new Date().toISOString().split("T")[0]} 
                             />
-                            <InputField 
+                            <InputField
                                 labelName="To"
                                 type="date"
                                 value={endDate}
                                 name={"endDate"}
                                 method={(e) => setEndDate(e.target.value)}
+                                min={ startDate
+                                    ? new Date(new Date(startDate).getTime() + 24 * 60 * 60 * 1000).toISOString().split("T")[0]
+                                    : new Date().toISOString().split("T")[0]
+                                }
                             />
                         </div>
-                        <button
-                            type='button'
-                            onClick={handleBookNow}
-                            className="w-[120px] bg-orange-500 hover:bg-orange-600 text-white font-semibold py-[5px] px-[10px] rounded shadow transition duration-200 ease-in-out"
+                        <button onClick={proceedPayment}
+                        disabled={isPropertyBooked(property?._id)}
+                            className={`w-[120px] bg-orange-500 hover:bg-orange-600 ${isPropertyBooked(property?._id) ? "cursor-not-allowed opacity-50" : "cursor-pointer"} text-white font-semibold py-[5px] px-[10px] rounded shadow transition duration-200 ease-in-out`}
                         >
                             Book Now
                         </button>
@@ -122,11 +101,10 @@ export default function PropertyDetails() {
                                 <img
                                     key={index}
                                     src={img}
-                                    onClick={() => {setSelectedImg(img); window.scrollTo({ top: 0, behavior: 'smooth' });}}
+                                    onClick={() => { setSelectedImg(img); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
                                     alt={`Property ${index}`}
-                                    className={`w-full h-52 md:h-60 object-cover rounded-sm shadow cursor-pointer transition ${
-                                        selectedImg === img ? "ring-4 ring-orange-500" : "hover:scale-105"
-                                    }`}
+                                    className={`w-full h-52 md:h-60 object-cover rounded-sm shadow cursor-pointer transition ${selectedImg === img ? "ring-4 ring-orange-500" : "hover:scale-105"
+                                        }`}
                                 />
                             ))}
                         </div>
@@ -151,6 +129,7 @@ export default function PropertyDetails() {
                     </div>
                 </div>
             </div>
+            {modal === "payment-modal" && <Payment property={property} startDate={startDate} endDate={endDate} />}
         </div>
     );
 }

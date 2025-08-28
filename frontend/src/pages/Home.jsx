@@ -4,9 +4,10 @@ import PropertyCard from '../components/cards/PropertyCard';
 import { useMainContext } from '../context';
 import { Link } from 'react-router-dom';
 import PropertyMap from '../components/PropertyMap';
+import { EmptyCard } from '../components';
 
 export default function Home() {
-    const { properties } = useMainContext();
+    const { properties, isPropertyBooked } = useMainContext();
     const [searchProperties, setSearchProperties] = useState(properties || []);
     const [search, setSearch] = useState('');
     const [currentImg, setCurrentImg] = useState(0);
@@ -42,7 +43,7 @@ export default function Home() {
     }, [handleSearch]);
 
     return (
-        <div className="w-full min-h-screen bg-gray-50">
+        <div className="max-w-[1400px] mx-auto min-h-screen px-4 md:px-10">
             <section className="relative bg-cover bg-center h-[40vh] md:h-[80vh] flex items-center justify-center"
               style={{ backgroundImage: `url(${images[currentImg]})` }}
             >
@@ -71,17 +72,26 @@ export default function Home() {
                 </div>
             </section>
 
-            <section className="py-12 px-6 md:px-20 bg-gray-100">
+            <section className="py-12 px-6 md:px-20">
                 <h2 className="text-3xl font-semibold mb-8 text-center">
                     Featured Properties 
                 </h2>
                 {searchProperties?.length > 0 ? (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        {searchProperties?.slice(0, 6)?.map((item) => (
-                            <PropertyCard key={item?._id} property={item} />
+                        {searchProperties?.slice(0, 6)?.map((item) => {
+                            const booked = isPropertyBooked(item?._id);
+                            return (
+                                <PropertyCard key={item?._id} property={item} booked={booked} />
+                            )
+                        })}
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {[1,2,3,4,5,6,7,8,9].map(_ => (
+                            <EmptyCard />
                         ))}
                     </div>
-                ) : (<p className='text-xl text-orange-600 font-semibold mb-8 text-center'>No properties found.</p>)}
+                )}
                 {searchProperties.length > 6 && 
                     <Link to={'/properties'} onClick={()=> window.scrollTo({top:0, behavior: "smooth"})}
                         className='flex items-center justify-center mt-10 font-[500] text-orange-600 hover:underline'>
@@ -91,7 +101,7 @@ export default function Home() {
             </section>
 
             {/* Map */}
-            <section className="py-16 px-6 md:px-20 bg-gray-100">
+            <section className="py-16 px-6 md:px-20">
                 <h2 className="text-3xl md:text-4xl font-bold text-center mb-10 text-gray-800">
                     Explore Locations on Map
                 </h2>

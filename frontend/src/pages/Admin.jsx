@@ -1,10 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { DataTable, TabSwitcher } from "../components";
+import { DataTable, TabSwitcher, TotalsData } from "../components";
 import { useMainContext } from "../context";
 import { formatPrice } from "../utils/formatPrice";
 
 export default function Admin() {
-    const [activeTab, setActiveTab] = useState( "Users" || localStorage.getItem('tabs'));
+    const [activeTab, setActiveTab] = useState(localStorage.getItem('tabs') || "Users");
     const { allUsers, properties, allBookings, setModal, setSelectedIds } = useMainContext();
 
     const handleChangeTab = (tab) => {
@@ -12,7 +12,16 @@ export default function Admin() {
         localStorage.setItem('tabs', tab)
     }
 
-    
+    const propertyName = useMemo(() => (propertyId) => {
+        const property = properties.find(prop => prop._id === propertyId);
+        return property ? property.title : "Unknown Property";
+    }, [properties]);
+
+    const userName = useMemo(() => (userId) => {
+        const user = allUsers.find(user => user._id === userId);
+        return user ? user.name : "Unknown User";
+    }, [allUsers]);
+
     const dataMap = useMemo(() => ({
         Users: {
             label: "Users",
@@ -48,41 +57,43 @@ export default function Admin() {
         },
         Bookings: {
             label: "Bookings",
-            columns: ["Property", 'User', 'Starting Date', 'Ending Date'],
+            columns: ["Property", 'User', 'Starting Date', 'Ending Date', "Days", "Status"],
             rows: allBookings?.map(booking => ({
-                Property: booking?.property,
-                User: booking?.user,
+                Property: propertyName(booking?.property),
+                User: userName(booking?.user),
                 'Starting Date': new Date(booking?.startDate).toLocaleDateString(),
                 'Ending Date': new Date(booking?.endDate).toLocaleDateString(),
+                Days: Math.ceil((new Date(booking?.endDate) - new Date(booking?.startDate)) / (1000 * 60 * 60 * 24)),
+                Status:  <span className={`inline-block px-3 py-1 mt-3 rounded-sm text-sm font-medium 
+                        ${ booking?.status === "Booked" ? "bg-green-100 text-green-700 border border-green-700"
+                            : booking?.status === "Cancelled" ? "bg-yellow-100 text-yellow-700 border border-yellow-700"
+                            : "bg-red-100 text-red-700"
+                        }`}
+                    >
+                        {booking?.status}
+                    </span>
             })) || [],
         },
-    }), [allUsers, allBookings, properties, setModal, setSelectedIds]);
+    }), [allUsers, allBookings, properties, setModal, setSelectedIds, propertyName, userName]);
 
     const tabList = Object.keys(dataMap).map(key => ({key, label: dataMap[key].label}));
 
     return (
-        <div className="md:px-10 px-4 py-10 bg-gray-100 min-h-screen">
-            <TabSwitcher active={activeTab} tabs={tabList} onTabChange={handleChangeTab} />
-            <div className="grid md:grid-cols-3 gap-6 mt-8">
-                <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-xl font-semibold text-gray-700">Total Users</h2>
-                <p className="mt-2 text-3xl font-bold text-indigo-600">{allUsers?.length}</p>
+        <section className="bg-gray-100">
+            <div className="max-w-[1400px] mx-auto md:px-10 px-4 py-10 min-h-screen">
+                <TabSwitcher active={activeTab} tabs={tabList} onTabChange={handleChangeTab} />
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+                    <TotalsData label={"Total Users"} count={dataMap["Users"]?.rows?.length} />
+                    <TotalsData label={"Total Properties"} count={dataMap["Properties"]?.rows?.length} />
+                    <TotalsData label={"Total Bookings"} count={dataMap["Bookings"]?.rows?.length} />
                 </div>
-                <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-xl font-semibold text-gray-700">Total Bookings</h2>
-                <p className="mt-2 text-3xl font-bold text-green-600">{allBookings?.length}</p>
-                </div>
-                <div className="bg-white shadow-md rounded p-6">
-                <h2 className="text-xl font-semibold text-gray-700">Total Properties</h2>
-                <p className="mt-2 text-3xl font-bold text-blue-600">{properties?.length}</p>
-                </div>
+                <DataTable
+                    label={activeTab}
+                    buttonLabel={"Add Property"}
+                    columns={dataMap[activeTab]?.columns}
+                    rows={dataMap[activeTab]?.rows}
+                />
             </div>
-            <DataTable
-                label={activeTab}
-                buttonLabel={"Add Property"}
-                columns={dataMap[activeTab]?.columns}
-                rows={dataMap[activeTab]?.rows}
-            />
-        </div>
+        </section>
     );
 }

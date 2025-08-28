@@ -31,16 +31,16 @@ export const deleteProperty = async (propertyId) => {
 
 export const bookingProperty = async (amount) => {
   try {
-    const res = await axios.post(`${API_URL}/make-payment`, { amount });
-    return res;
+    const res = await axios.post(`${API_URL}/make-payment`, amount);
+    return res.data;
   } catch (error) {
-    console.error("Error while creating property:", error);
+    console.error("Error while booking property:", error);
   }
 };
 
 export const verifyPayment = async (data) => {
   try {
-    const res = await axios.post(`${API_URL}/verify-payment`, { data });
+    const res = await axios.post(`${API_URL}/verify-payment`, data);
     return res.data;
   } catch (error) {
     console.error("Error while verifying payment:", error);
@@ -67,7 +67,7 @@ export const getAllProperties = async () => {
 
 export const getAllBookings = async () => {
   try {
-    const res = await axios.get(`${API_URL}/get-bookings`)
+    const res = await axios.get(`${API_URL}/all-bookings`)
     return res.data;
   } catch (error) {
     console.log(error.message)
@@ -76,7 +76,7 @@ export const getAllBookings = async () => {
 
 export const getBookingByUser = async (userId) => {
   try {
-    const res = await axios.get(`${API_URL}/get-booking/${userId}`);
+    const res = await axios.get(`${API_URL}/booking/${userId}`);
     return res.data;
   } catch (error) {
     console.log(error.message)

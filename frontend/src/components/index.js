@@ -1,5 +1,6 @@
 import BookingCard from "./cards/BookingCard";
 import PropertyCard from "./cards/PropertyCard";
+import EmptyCard from "./cards/EmptyCard";
 import UploadImage from "./cloudinary/UploadImage";
 import Button from "./helpers/Button";
 import InputField from "./helpers/InputField";
@@ -21,10 +22,14 @@ import ImageUploader from "./ImageUploader";
 import PropertyMap from "./PropertyMap";
 import Spinner from "./Spinner";
 import TabSwitcher from "./TabSwitcher";
+import TotalsData from "./TotalsData";
+import Pagination from "./Pagination";
+import Payment from "./modals/Payment";
 
 export {
     BookingCard,
     PropertyCard,
+    EmptyCard,
     UploadImage,
     Button,
     InputField,
@@ -45,5 +50,8 @@ export {
     ImageUploader,
     PropertyMap,
     Spinner,
-    TabSwitcher
+    TabSwitcher,
+    TotalsData,
+    Pagination,
+    Payment
 };

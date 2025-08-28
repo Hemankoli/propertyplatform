@@ -13,7 +13,7 @@ export default function PropertyForm() {
         images: [],
     });
 
-    const { properties, selectedIds, setModal, setLoader } = useMainContext();
+    const { properties, selectedIds, setModal, setLoader, fetchProperties } = useMainContext();
     const [imagePreview, setImagePreview] = useState([]);
 
     // Prefill form if editing
@@ -98,13 +98,13 @@ export default function PropertyForm() {
             };
 
             if (selectedIds) {
-                const resp = await editProperty(selectedIds, payload);
-                if (resp?.status === 200) return PropertyUpdatedSuccessfullyNotification();
+                await editProperty(selectedIds, payload);
+                PropertyUpdatedSuccessfullyNotification();
             } else {
-                const resp = await createProperty(payload);
-                if (resp?.status === 200) return PropertyCreatedSuccessfullyNotification();
+                await createProperty(payload);
+                PropertyCreatedSuccessfullyNotification();
             }
-
+            await fetchProperties();
             setModal(false);
         } catch (error) {
             console.error(error);

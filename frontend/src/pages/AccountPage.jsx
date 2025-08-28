@@ -5,7 +5,7 @@ export default function AccountPage() {
   const { user, bookings, properties } = useMainContext();
 
   return (
-    <div className="min-h-screen md:px-10 px-4 py-10">
+    <div className="min-h-screen max-w-[1400px] mx-auto md:px-10 px-4 py-10">
       <div className="flex flex-col md:flex-row items-start w-full gap-4">
         <div className="md:w-1/3 w-full mx-auto flex items-center md:items-start p-4 flex-col mx-auto border border-orange-300 shadow-md">
           <h2 className="text-2xl font-bold mb-4">Account Information</h2>
@@ -28,7 +28,7 @@ export default function AccountPage() {
         <div className="md:w-2/3 w-full flex items-center md:items-start p-4 flex-col mx-auto border border-orange-300 shadow-md max-h-[600px] overflow-y-auto">
           <h2 className="text-2xl font-bold mb-4">My Bookings</h2>
           {bookings?.length > 0 ? (
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-3 gap-6 w-full">
               {bookings.map((booking) => {
                 const propData = properties.find((prop) => prop._id === booking.property);
                 return <BookingCard key={booking._id} data={{ ...booking, property: propData }} />;

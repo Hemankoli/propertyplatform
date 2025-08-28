@@ -6,7 +6,7 @@ import axios from "axios";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
-  const { setModal, setUser, setLoader, onClose } = useMainContext();
+  const { setModal, setUser, setLoader, onClose, getUser } = useMainContext();
 
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -26,6 +26,7 @@ export default function Login() {
         localStorage.setItem("user", JSON.stringify(res.data));
         setUser(res.data.user);
         await onClose();
+        await getUser()
       }
     } catch (error) {
       if (error.response && error.response.status === 401) {

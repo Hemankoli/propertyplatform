@@ -6,7 +6,7 @@ import axios from "axios";
 
 export default function Signup() {
     const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
-    const { setModal, setUser, setLoader, onClose } = useMainContext();
+    const { setModal, setUser, setLoader, onClose, getUser } = useMainContext();
 
     function handleChange(e) {
         setForm({ ...form, [e.target.name]: e.target.value });
@@ -43,6 +43,7 @@ export default function Signup() {
                 localStorage.setItem("user", JSON.stringify(response.data.user));
                 setUser(response.data.user);
                 await onClose();
+                await getUser();
             } else {
                 UserAlreadyRegisteredNotification();
                 setModal("login-modal");

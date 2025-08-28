@@ -23,17 +23,16 @@ export default function Header() {
 
   return (
     <header className="bg-white shadow sticky top-0 z-30">
-      <div className="container mx-auto flex items-center justify-between py-3 px-4 md:px-10">
+      <div className="max-w-[1400px] mx-auto flex items-center justify-between py-3 px-4 md:px-10">
        <Link to="/"
-          className="flex items-center text-2xl md:text-3xl font-extrabold cursor-pointer group relative"
-        >
-          <p className="bg-gradient-to-r from-orange-500 via-red-500 to-pink-500 bg-clip-text text-transparent drop-shadow-sm transition-transform duration-300">
-            Property
+          className="flex items-center text-2xl md:text-3xl font-bold cursor-pointer"
+        > 
+          <img className="w-[40px] h-[40px]" 
+            src="https://cdn.dreampropertiesvalencia.com/2021/07/Favicon.png"  alt="logo"
+          />
+          <p className="bg-orange-600 bg-clip-text text-transparent drop-shadow-sm transition-transform duration-300">
+            Estatly
           </p>
-          <span className="ml-1 italic text-gray-900 group-hover:text-gray-700 transition-colors duration-300">
-            Seller
-          </span>
-          <span className="absolute bottom-0 left-0 w-0 h-[3px] bg-gradient-to-r from-orange-500 to-pink-500 rounded-full group-hover:w-full transition-all duration-500"></span>
         </Link>
         {/* Desktop Nav */}
         <nav className="hidden md:flex items-center space-x-8 font-medium">

@@ -3,13 +3,14 @@ import { deleteProperty } from '../../services/apis';
 import { PropertyDeletedSuccessfullyNotification } from '../notifications/notification';
 
 export default function ConfirmationModal() {
-    const {loader, setLoader, selectedIds, onClose} = useMainContext();
+    const {loader, setLoader, selectedIds, onClose, fetchProperties} = useMainContext();
 
     const handleDelete = async () => {
         setLoader(true);
         try {
             await deleteProperty(selectedIds);
             await onClose();
+            await fetchProperties();
             PropertyDeletedSuccessfullyNotification();
         } catch (error) {
             console.error(error);

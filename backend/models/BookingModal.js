@@ -8,7 +8,7 @@ const BookingSchema = new mongoose.Schema({
   totalAmount: { type: Number, required: true },
   razorpay_order_id: String,
   razorpay_payment_id: String,
-  status: { type: String, enum: ['pending', 'paid', 'cancelled'], default: 'pending' },
+  status: { type: String, enum: ['Booked'], default: 'Booked' },
   createdAt: { type: Date, default: Date.now }
 });
 

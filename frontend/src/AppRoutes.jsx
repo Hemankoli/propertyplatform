@@ -9,7 +9,7 @@ export default function AppRoutes() {
     
     return (
         <BrowserRouter>
-            <Toaster />
+            <Toaster toastOptions={{success: {style: {background: 'white', border: '2px solid green'}}, error: {style: {background: 'white', border: '2px solid red'}}}} />
             <Header />
             <Routes>
                 <Route path="/" element={<Home />} />

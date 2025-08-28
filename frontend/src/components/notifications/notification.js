@@ -18,5 +18,7 @@ export const PropertyDeletedSuccessfullyNotification = () => {toast.success("Pro
 export const SomethingWentWrongNotification = () => {toast.error("Something went wrong!")};
 
 export const BookingDatesRequiredNotification = () => {toast.error("Please select start and end dates for booking.")};
+export const BookingDatesInvalidNotification = () => {toast.error("End date must be after start date.")};
 export const PaymentSuccessfulNotification = () => {toast.success("🎉 Payment Successful & Booking Confirmed!")};
 export const PaymentFailedNotification = () => {toast.error("Payment Failed!")};
+

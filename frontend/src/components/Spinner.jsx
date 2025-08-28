@@ -17,7 +17,7 @@ const Spinner = ({ path = 'login' }) => {
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-br from-purple-100 via-white to-purple-50">
       <div className="text-center space-y-6">
         <h1 className="text-3xl md:text-4xl font-bold text-purple-600 animate-pulse">
-          Please Login or Register First
+          You are not authorized to access this restricted page
         </h1>
         <p className="text-lg md:text-xl text-gray-700">
           Redirecting you in{" "}

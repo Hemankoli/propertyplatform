@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { formatPrice } from "../../utils/formatPrice";
 
-export default function PropertyCard({ property }) {
+export default function PropertyCard({ property, booked }) {
   return (
     <div className="group">
       <Link
@@ -17,6 +17,11 @@ export default function PropertyCard({ property }) {
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-70 group-hover:opacity-100 transition-opacity"></div>
         </div>
+        {booked && (
+          <div className="absolute top-2 left-2 bg-red-500 text-white px-3 py-1 rounded-sm text-sm font-semibold shadow-md">
+            Already Booked
+          </div>
+        )}
 
         <div className="p-4">
           <h3 className="text-lg font-semibold group-hover:text-orange-600 transition-colors">
