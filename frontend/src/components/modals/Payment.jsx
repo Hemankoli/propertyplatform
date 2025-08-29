@@ -45,6 +45,9 @@ export default function Payment({property, startDate, endDate}) {
                     PaymentSuccessfulNotification();
                     await fetchAllBookings();   
                     await fetchBookingsByUser();
+                    setModal(false);
+                    navigate("/dashboard/account");
+                    window.scrollTo({ top: 0, behavior: "smooth" })
                 },
                 prefill: {
                     name: user?.user?.name || user?.name || "John Doe",
@@ -54,9 +57,6 @@ export default function Payment({property, startDate, endDate}) {
             };
             const rzp = new window.Razorpay(options);
             rzp.open();
-            setModal(false);
-            navigate("/dashboard/account");
-            window.scrollTo({ top: 0, behavior: "smooth" })
         } catch (err) {
             console.error(err);
             PaymentFailedNotification();
