@@ -1,3 +1,7 @@
+Admin Login:- 
+email:- test111@gmail.com
+password: 123321
+
 🏡 Property Listing & Booking Platform
 A full-stack property marketplace where users can browse, map, and book properties, while Admins manage users, properties, and bookings. Built with React.js, Node.js, MongoDB/Mongoose, RestAPIs, Razorpay, OpenLayers, and RBAC for secure and scalable operations.
 
